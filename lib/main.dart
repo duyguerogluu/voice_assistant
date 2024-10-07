@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:voice_assistant/colors.dart';
 import 'package:voice_assistant/home_page.dart';
+import 'package:voice_assistant/mycolor.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,9 +16,9 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Voice Assistant',
       theme: ThemeData.light(useMaterial3: true).copyWith(
-          scaffoldBackgroundColor: Mycolor.whiteColor,
+          scaffoldBackgroundColor: MyColor.whiteColor,
           appBarTheme: const AppBarTheme(
-            backgroundColor: Mycolor.whiteColor,
+            backgroundColor: MyColor.whiteColor,
           )),
       home: const HomePage(),
     );
