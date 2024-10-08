@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 import 'package:voice_assistant/mycolor.dart';
 
 class HomePage extends StatefulWidget {
@@ -9,11 +11,55 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final speechToText = SpeechToText();
+  String lastWords = '';
+
+  @override
+  void initState() {
+    super.initState();
+    initSpeechToText();
+  }
+
+  Future<void> initSpeechToText() async {
+    await speechToText.initialize();
+    setState(() {});
+  }
+
+  Future<void> startListening() async {
+    await speechToText.listen(onResult: onSpeechResult);
+    setState(() {});
+  }
+
+  Future<void> stopListening() async {
+    await speechToText.stop();
+    setState(() {});
+  }
+
+  Future<void> onSpeechResult(SpeechRecognitionResult result) async {
+    setState(() {
+      lastWords = result.recognizedWords;
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    speechToText.stop();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () async {
+          if (await speechToText.hasPermission && speechToText.isNotListening) {
+            await startListening();
+          } else if (speechToText.isListening) {
+            await stopListening();
+          } else {
+            initSpeechToText();
+          }
+        },
         backgroundColor: MyColor.firstSuggestionBoxColor,
         child: const Icon(Icons.mic),
       ),
@@ -22,47 +68,49 @@ class _HomePageState extends State<HomePage> {
         leading: const Icon(Icons.menu),
         centerTitle: true,
       ),
-      body: Column(
-        children: [
-          const Virtualicon(),
-          const AskText(),
-          Container(
-            padding: const EdgeInsets.all(10),
-            alignment: Alignment.centerLeft,
-            margin: const EdgeInsets.only(top: 10, left: 20),
-            child: const Text(
-              'Here are a few features',
-              style: TextStyle(
-                fontFamily: 'Cera Pro',
-                color: MyColor.mainFontColor,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const Virtualicon(),
+            const AskText(),
+            Container(
+              padding: const EdgeInsets.all(10),
+              alignment: Alignment.centerLeft,
+              margin: const EdgeInsets.only(top: 10, left: 20),
+              child: const Text(
+                'Here are a few features',
+                style: TextStyle(
+                  fontFamily: 'Cera Pro',
+                  color: MyColor.mainFontColor,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
-          const Column(
-            children: [
-              FeatureBox(
-                color: MyColor.firstSuggestionBoxColor,
-                headerText: 'ChatGPT',
-                description:
-                    'A smarter way too stay organized and informed with ChatGPT',
-              ),
-              FeatureBox(
-                color: MyColor.secondSuggestionBoxColor,
-                headerText: 'Dall-E',
-                description:
-                    'Get inspired and stay creative with your personal assistant powered by Dall-E',
-              ),
-              FeatureBox(
-                color: MyColor.thirdSuggestionBoxColor,
-                headerText: 'Smart Voice Assistant',
-                description:
-                    'Get the best of both worlds with a voice assistant powered by Dall-E and ChatGPT',
-              ),
-            ],
-          ),
-        ],
+            const Column(
+              children: [
+                FeatureBox(
+                  color: MyColor.firstSuggestionBoxColor,
+                  headerText: 'ChatGPT',
+                  description:
+                      'A smarter way too stay organized and informed with ChatGPT',
+                ),
+                FeatureBox(
+                  color: MyColor.secondSuggestionBoxColor,
+                  headerText: 'Dall-E',
+                  description:
+                      'Get inspired and stay creative with your personal assistant powered by Dall-E',
+                ),
+                FeatureBox(
+                  color: MyColor.thirdSuggestionBoxColor,
+                  headerText: 'Smart Voice Assistant',
+                  description:
+                      'Get the best of both worlds with a voice assistant powered by Dall-E and ChatGPT',
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
