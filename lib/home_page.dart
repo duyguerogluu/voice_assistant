@@ -107,7 +107,9 @@ class _HomePageState extends State<HomePage> {
           }
         },
         backgroundColor: MyColor.firstSuggestionBoxColor,
-        child: const Icon(Icons.mic),
+        child: Icon(
+          speechToText.isListening ? Icons.stop : Icons.mic,
+        ),
       ),
       appBar: AppBar(
         title: const Text('Voice Assistant'),
@@ -118,42 +120,58 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           children: [
             const Virtualicon(),
-            AskText(generatedContent: generatedContent),
-            Container(
-              padding: const EdgeInsets.all(10),
-              alignment: Alignment.centerLeft,
-              margin: const EdgeInsets.only(top: 10, left: 20),
-              child: const Text(
-                'Here are a few features',
-                style: TextStyle(
-                  fontFamily: 'Cera Pro',
-                  color: MyColor.mainFontColor,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+            AskText(
+                generatedContent: generatedContent,
+                generatedImageUrl: generatedImageUrl),
+            if (generatedImageUrl != null)
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20.0),
+                  child: Image.network(generatedImageUrl!),
+                ),
+              ),
+            Visibility(
+              visible: generatedContent == null && generatedImageUrl == null,
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                alignment: Alignment.centerLeft,
+                margin: const EdgeInsets.only(top: 10, left: 20),
+                child: const Text(
+                  'Here are a few features',
+                  style: TextStyle(
+                    fontFamily: 'Cera Pro',
+                    color: MyColor.mainFontColor,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
-            const Column(
-              children: [
-                FeatureBox(
-                  color: MyColor.firstSuggestionBoxColor,
-                  headerText: 'ChatGPT',
-                  description:
-                      'A smarter way too stay organized and informed with ChatGPT',
-                ),
-                FeatureBox(
-                  color: MyColor.secondSuggestionBoxColor,
-                  headerText: 'Dall-E',
-                  description:
-                      'Get inspired and stay creative with your personal assistant powered by Dall-E',
-                ),
-                FeatureBox(
-                  color: MyColor.thirdSuggestionBoxColor,
-                  headerText: 'Smart Voice Assistant',
-                  description:
-                      'Get the best of both worlds with a voice assistant powered by Dall-E and ChatGPT',
-                ),
-              ],
+            Visibility(
+              visible: generatedContent == null && generatedImageUrl == null,
+              child: const Column(
+                children: [
+                  FeatureBox(
+                    color: MyColor.firstSuggestionBoxColor,
+                    headerText: 'ChatGPT',
+                    description:
+                        'A smarter way too stay organized and informed with ChatGPT',
+                  ),
+                  FeatureBox(
+                    color: MyColor.secondSuggestionBoxColor,
+                    headerText: 'Dall-E',
+                    description:
+                        'Get inspired and stay creative with your personal assistant powered by Dall-E',
+                  ),
+                  FeatureBox(
+                    color: MyColor.thirdSuggestionBoxColor,
+                    headerText: 'Smart Voice Assistant',
+                    description:
+                        'Get the best of both worlds with a voice assistant powered by Dall-E and ChatGPT',
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -163,38 +181,43 @@ class _HomePageState extends State<HomePage> {
 }
 
 class AskText extends StatelessWidget {
-  const AskText({
-    super.key,
-    required this.generatedContent,
-  });
+  const AskText(
+      {super.key,
+      required this.generatedContent,
+      required this.generatedImageUrl});
 
   final String? generatedContent;
+  final String? generatedImageUrl;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 10,
-      ),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: MyColor.borderColor,
+    return Visibility(
+      visible: generatedImageUrl == null,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 10,
         ),
-        borderRadius: BorderRadius.circular(20).copyWith(
-          topLeft: Radius.zero,
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: MyColor.borderColor,
+          ),
+          borderRadius: BorderRadius.circular(20).copyWith(
+            topLeft: Radius.zero,
+          ),
         ),
-      ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 10.0),
-        child: Text(
-          generatedContent == null
-              ? 'Hi, How can I help you?'
-              : generatedContent!,
-          style: const TextStyle(
-            color: MyColor.mainFontColor,
-            fontFamily: 'Cera Pro',
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10.0),
+          child: Text(
+            generatedContent == null
+                ? 'Hi, How can I help you?'
+                : generatedContent!,
+            style: TextStyle(
+              color: MyColor.mainFontColor,
+              fontFamily: 'Cera Pro',
+              fontSize: generatedContent == null ? 25 : 18,
+            ),
           ),
         ),
       ),
