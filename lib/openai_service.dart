@@ -1,10 +1,11 @@
 import 'dart:convert';
-
 import 'package:http/http.dart' as http;
 import 'package:voice_assistant/secrets.dart';
 
 class OpenAIService {
   final List<Map<String, String>> messages = [];
+  
+
   Future<String> isArtPromptAPI(String prompt) async {
     try {
       final res = await http.post(
@@ -35,14 +36,14 @@ class OpenAIService {
           case 'yes':
           case 'Yes.':
           case 'yes.':
-            final res = await dalleAPI(prompt);
+            final res = await dallEAPI(prompt);
             return res;
           default:
             final res = await chatGPTAPI(prompt);
             return res;
         }
       }
-      return 'An internal error occurred';
+      return 'Error: ${res.statusCode}';
     } catch (e) {
       return e.toString();
     }
@@ -77,13 +78,43 @@ class OpenAIService {
         });
         return content;
       }
-      return 'An internal error occurred';
+      return 'Error: ${res.statusCode}';
     } catch (e) {
       return e.toString();
     }
   }
 
-  Future<String> dalleAPI(String prompt) async {
-    return 'dalleAPI';
+  Future<String> dallEAPI(String prompt) async {
+    messages.add({
+      'role': 'user',
+      'content': prompt,
+    });
+    try {
+      final res = await http.post(
+        Uri.parse('https://api.openai.com/v1/images/generations'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $openAIAPIKey',
+        },
+        body: jsonEncode({
+          'prompt': prompt,
+          'n': 1,
+        }),
+      );
+
+      if (res.statusCode == 200) {
+        String imageUrl = jsonDecode(res.body)['data'][0]['url'];
+        imageUrl = imageUrl.trim();
+
+        messages.add({
+          'role': 'assistant',
+          'content': imageUrl,
+        });
+        return imageUrl;
+      }
+      return 'Error: ${res.statusCode}';
+    } catch (e) {
+      return e.toString();
+    }
   }
 }
