@@ -93,6 +93,12 @@ class _HomePageState extends State<HomePage> {
             if (speech.contains('http')) {
               generatedImageUrl = speech;
               generatedContent = null;
+              setState(() {});
+            } else {
+              generatedImageUrl = null;
+              generatedContent = speech;
+              setState(() {});
+              await systemSpeak(speech);
             }
             await systemSpeak(speech);
             await stopListening();
@@ -112,7 +118,7 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           children: [
             const Virtualicon(),
-            const AskText(),
+            AskText(generatedContent: generatedContent),
             Container(
               padding: const EdgeInsets.all(10),
               alignment: Alignment.centerLeft,
@@ -150,6 +156,46 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class AskText extends StatelessWidget {
+  const AskText({
+    super.key,
+    required this.generatedContent,
+  });
+
+  final String? generatedContent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 20,
+        vertical: 10,
+      ),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: MyColor.borderColor,
+        ),
+        borderRadius: BorderRadius.circular(20).copyWith(
+          topLeft: Radius.zero,
+        ),
+      ),
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 10.0),
+        child: Text(
+          generatedContent == null
+              ? 'Hi, How can I help you?'
+              : generatedContent!,
+          style: const TextStyle(
+            color: MyColor.mainFontColor,
+            fontFamily: 'Cera Pro',
+          ),
         ),
       ),
     );
@@ -207,41 +253,6 @@ class FeatureBox extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class AskText extends StatelessWidget {
-  const AskText({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 10,
-      ),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: MyColor.borderColor,
-        ),
-        borderRadius: BorderRadius.circular(20).copyWith(
-          topLeft: Radius.zero,
-        ),
-      ),
-      child: const Padding(
-        padding: EdgeInsets.symmetric(vertical: 10.0),
-        child: Text(
-          'Hi, How can I help you?',
-          style: TextStyle(
-            color: MyColor.mainFontColor,
-            fontFamily: 'Cera Pro',
-          ),
         ),
       ),
     );
